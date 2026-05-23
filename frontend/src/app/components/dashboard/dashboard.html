@@ -1,0 +1,57 @@
+<div class="seller-greeting">
+  <h2>
+    Partner Portal: {{ sellerService.selectedSeller()!.firstName }}
+    {{ sellerService.selectedSeller()!.lastName }}
+  </h2>
+  <p>Manage your emerald funds and launch targeted ad campaigns for your product catalog.</p>
+</div>
+
+<div class="dashboard-grid">
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h3>Available Wallets</h3>
+      <span class="badge">{{ sellerService.accounts().length }} wallets</span>
+    </div>
+
+    <div class="cards-list">
+      @for (account of sellerService.accounts(); track account.id) {
+        <div class="wallet-card">
+          <div class="wallet-icon">◆</div>
+          <div class="wallet-info">
+            <span class="wallet-name">{{ account.accountName }}</span>
+            <span class="wallet-id">Account ID: #{{ account.id }}</span>
+          </div>
+          <div class="wallet-balance">
+            <span class="balance-value">{{ account.balance | number: '1.2-2' }}</span>
+            <span class="balance-currency">EMR</span>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state">No wallets assigned to this partner.</div>
+      }
+    </div>
+  </section>
+
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h3>Product Catalog</h3>
+      <span class="badge">{{ sellerService.products().length }} items</span>
+    </div>
+
+    <div class="cards-grid">
+      @for (product of sellerService.products(); track product.id) {
+        <div class="product-card">
+          <div class="product-info">
+            <span class="product-name">{{ product.name }}</span>
+            <p class="product-desc">{{ product.description }}</p>
+          </div>
+          <div class="product-actions">
+            <button class="btn btn-primary btn-sm">Create Ad</button>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state">No products found in this catalog.</div>
+      }
+    </div>
+  </section>
+</div>

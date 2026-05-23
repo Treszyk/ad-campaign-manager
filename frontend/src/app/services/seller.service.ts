@@ -21,22 +21,22 @@ export class SellerService {
   });
 
   accounts = signal<EmeraldAccount[]>([]);
+  totalBalance = computed(() => {
+    return this.accounts().reduce((sum, acc) => sum + acc.balance, 0);
+  });
   products = signal<Product[]>([]);
 
   constructor() {
-    effect(
-      () => {
-        const id = this.selectedSellerId();
-        if (id !== null) {
-          this.sellerApi.getSellerAccounts(id).subscribe((accs) => this.accounts.set(accs));
-          this.sellerApi.getSellerProducts(id).subscribe((prods) => this.products.set(prods));
-        } else {
-          this.accounts.set([]);
-          this.products.set([]);
-        }
-      },
-      { allowSignalWrites: true },
-    );
+    effect(() => {
+      const id = this.selectedSellerId();
+      if (id !== null) {
+        this.sellerApi.getSellerAccounts(id).subscribe((accs) => this.accounts.set(accs));
+        this.sellerApi.getSellerProducts(id).subscribe((prods) => this.products.set(prods));
+      } else {
+        this.accounts.set([]);
+        this.products.set([]);
+      }
+    });
   }
 
   selectSeller(id: number | null): void {

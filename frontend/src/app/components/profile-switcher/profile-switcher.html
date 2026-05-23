@@ -1,0 +1,54 @@
+<div class="profile-container">
+  <div class="dropdown-wrapper">
+    <button class="dropdown-trigger" (click)="toggleDropdown()" [class.active]="isOpen()">
+      <span class="avatar-badge">
+        {{ sellerService.selectedSeller() ? sellerService.selectedSeller()!.firstName[0] : '?' }}
+      </span>
+      <span class="selected-name">
+        {{
+          sellerService.selectedSeller()
+            ? sellerService.selectedSeller()!.firstName +
+              ' ' +
+              sellerService.selectedSeller()!.lastName
+            : 'Select Profile...'
+        }}
+      </span>
+      <svg class="chevron-icon" viewBox="0 0 24 24" width="16" height="16">
+        <path d="M7 10l5 5 5-5H7z" fill="currentColor" />
+      </svg>
+    </button>
+
+    @if (isOpen()) {
+      <div class="dropdown-menu">
+        <div class="dropdown-header">Active Profiles</div>
+        <ul>
+          @for (seller of sellerService.sellers(); track seller.id) {
+            <li>
+              <button
+                class="dropdown-item"
+                [class.selected]="seller.id === sellerService.selectedSellerId()"
+                (click)="selectSeller(seller.id)"
+              >
+                <span class="item-avatar">{{ seller.firstName[0] }}</span>
+                <span class="item-name">{{ seller.firstName }} {{ seller.lastName }}</span>
+                @if (seller.id === sellerService.selectedSellerId()) {
+                  <span class="active-dot"></span>
+                }
+              </button>
+            </li>
+          } @empty {
+            <li>
+              <span class="dropdown-empty">Connecting to backend...</span>
+            </li>
+          }
+          @if (sellerService.selectedSellerId() !== null) {
+            <li class="divider"></li>
+            <li>
+              <button class="dropdown-item clear-btn" (click)="selectSeller(null)">Sign Out</button>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+</div>
