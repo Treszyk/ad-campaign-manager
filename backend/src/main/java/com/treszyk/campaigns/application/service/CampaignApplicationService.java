@@ -38,26 +38,9 @@ public class CampaignApplicationService
 
   @Override
   public Campaign createCampaign(CreateCampaignCommand cmd) {
-    EmeraldAccount account =
-        emeraldAccountRepository
-            .findById(cmd.emeraldAccountId())
-            .orElseThrow(
-                () ->
-                    new ResourceNotFoundException(
-                        "Emerald Account not found with ID: " + cmd.emeraldAccountId()));
-
-    Product product =
-        productRepository
-            .findById(cmd.productId())
-            .orElseThrow(
-                () ->
-                    new ResourceNotFoundException("Product not found with ID: " + cmd.productId()));
-
-    Seller seller =
-        sellerRepository
-            .findById(cmd.sellerId())
-            .orElseThrow(
-                () -> new ResourceNotFoundException("User not found with ID: " + cmd.sellerId()));
+    EmeraldAccount account = getAccountOrThrow(cmd.emeraldAccountId());
+    Product product = getProductOrThrow(cmd.productId());
+    Seller seller = getSellerOrThrow(cmd.sellerId());
 
     campaignDomainService.validateCampaignCreation(
         account, product, seller.getId(), cmd.campaignFund());
@@ -85,19 +68,8 @@ public class CampaignApplicationService
 
   @Override
   public Campaign updateCampaign(UpdateCampaignCommand cmd) {
-    Campaign campaign =
-        campaignRepository
-            .findById(cmd.id())
-            .orElseThrow(
-                () -> new ResourceNotFoundException("Campaign not found with ID: " + cmd.id()));
-
-    EmeraldAccount account =
-        emeraldAccountRepository
-            .findById(campaign.getEmeraldAccountId())
-            .orElseThrow(
-                () ->
-                    new ResourceNotFoundException(
-                        "Emerald Account not found with ID: " + campaign.getEmeraldAccountId()));
+    Campaign campaign = getCampaignOrThrow(cmd.id());
+    EmeraldAccount account = getAccountOrThrow(campaign.getEmeraldAccountId());
 
     campaignDomainService.adjustFunds(account, campaign.getCampaignFund(), cmd.campaignFund());
     emeraldAccountRepository.save(account);
@@ -116,18 +88,8 @@ public class CampaignApplicationService
 
   @Override
   public void deleteCampaign(Long id) {
-    Campaign campaign =
-        campaignRepository
-            .findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Campaign not found with ID: " + id));
-
-    EmeraldAccount account =
-        emeraldAccountRepository
-            .findById(campaign.getEmeraldAccountId())
-            .orElseThrow(
-                () ->
-                    new ResourceNotFoundException(
-                        "Emerald Account not found with ID: " + campaign.getEmeraldAccountId()));
+    Campaign campaign = getCampaignOrThrow(id);
+    EmeraldAccount account = getAccountOrThrow(campaign.getEmeraldAccountId());
 
     campaignDomainService.refundFunds(account, campaign.getCampaignFund());
     emeraldAccountRepository.save(account);
@@ -142,8 +104,31 @@ public class CampaignApplicationService
 
   @Override
   public Campaign getCampaignById(Long id) {
+    return getCampaignOrThrow(id);
+  }
+
+  private Campaign getCampaignOrThrow(Long id) {
     return campaignRepository
         .findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Campaign not found with ID: " + id));
+  }
+
+  private EmeraldAccount getAccountOrThrow(Long id) {
+    return emeraldAccountRepository
+        .findById(id)
+        .orElseThrow(
+            () -> new ResourceNotFoundException("Emerald Account not found with ID: " + id));
+  }
+
+  private Product getProductOrThrow(Long id) {
+    return productRepository
+        .findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + id));
+  }
+
+  private Seller getSellerOrThrow(Long id) {
+    return sellerRepository
+        .findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
   }
 }
