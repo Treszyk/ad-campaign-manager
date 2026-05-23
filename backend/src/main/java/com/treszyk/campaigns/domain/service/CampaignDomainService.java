@@ -67,19 +67,23 @@ public class CampaignDomainService {
 
   private final CampaignRepository campaignRepository;
 
-  public void validateTownAndKeywords(String town, List<String> keywords) {
-    if (town != null && !ALLOWED_TOWNS.contains(town)) {
+  public void validateTownAndKeywords(@NonNull String town, @NonNull List<String> keywords) {
+    if (town.trim().isEmpty()) {
+      throw new IllegalArgumentException("Town is mandatory and cannot be empty");
+    }
+    if (!ALLOWED_TOWNS.contains(town)) {
       throw new IllegalArgumentException("Town '%s' is not supported".formatted(town));
     }
-    if (keywords != null) {
-      keywords.stream()
-          .filter(kw -> !ALLOWED_KEYWORDS.contains(kw))
-          .findFirst()
-          .ifPresent(
-              kw -> {
-                throw new IllegalArgumentException("Keyword '%s' is not supported".formatted(kw));
-              });
+    if (keywords.isEmpty()) {
+      throw new IllegalArgumentException("Keywords list is mandatory and cannot be empty");
     }
+    keywords.stream()
+        .filter(kw -> !ALLOWED_KEYWORDS.contains(kw))
+        .findFirst()
+        .ifPresent(
+            kw -> {
+              throw new IllegalArgumentException("Keyword '%s' is not supported".formatted(kw));
+            });
   }
 
   public void validateCampaignCreation(

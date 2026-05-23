@@ -168,8 +168,38 @@ class CampaignDomainServiceTest {
   }
 
   @Test
-  void validateTownAndKeywords_Succeeds_WhenTownOrKeywordsAreNull() {
-    assertDoesNotThrow(() -> campaignDomainService.validateTownAndKeywords(null, null));
+  void validateTownAndKeywords_ThrowsNullPointerException_WhenTownIsNull() {
+    assertThrows(
+        NullPointerException.class,
+        () ->
+            campaignDomainService.validateTownAndKeywords(null, List.of("headphones", "wireless")));
+  }
+
+  @Test
+  void validateTownAndKeywords_ThrowsIllegalArgumentException_WhenTownIsEmpty() {
+    IllegalArgumentException exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                campaignDomainService.validateTownAndKeywords(
+                    "", List.of("headphones", "wireless")));
+    assertTrue(exception.getMessage().contains("Town is mandatory"));
+  }
+
+  @Test
+  void validateTownAndKeywords_ThrowsNullPointerException_WhenKeywordsAreNull() {
+    assertThrows(
+        NullPointerException.class,
+        () -> campaignDomainService.validateTownAndKeywords("Warszawa", null));
+  }
+
+  @Test
+  void validateTownAndKeywords_ThrowsIllegalArgumentException_WhenKeywordsAreEmpty() {
+    IllegalArgumentException exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> campaignDomainService.validateTownAndKeywords("Warszawa", List.of()));
+    assertTrue(exception.getMessage().contains("Keywords list is mandatory"));
   }
 
   @Test

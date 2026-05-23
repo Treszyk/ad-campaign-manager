@@ -20,7 +20,7 @@ public class Campaign {
   @NonNull private BigDecimal bidAmount;
   @NonNull private BigDecimal campaignFund;
   @NonNull private Boolean status;
-  private String town; // not a mandatory field
+  @NonNull private String town;
   @NonNull private Double radiusKm;
 
   @NonNull private AdTheme adTheme; // the background theme being displayed on preview
@@ -36,7 +36,7 @@ public class Campaign {
       @NonNull BigDecimal bidAmount,
       @NonNull BigDecimal campaignFund,
       @NonNull Boolean status,
-      String town,
+      @NonNull String town,
       @NonNull Double radiusKm,
       @NonNull AdTheme adTheme,
       @NonNull Long sellerId,
