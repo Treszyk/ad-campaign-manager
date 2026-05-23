@@ -6,12 +6,81 @@ import com.treszyk.campaigns.domain.model.EmeraldAccount;
 import com.treszyk.campaigns.domain.model.Product;
 import com.treszyk.campaigns.domain.repository.CampaignRepository;
 import java.math.BigDecimal;
+import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class CampaignDomainService {
+
+  public static final List<String> ALLOWED_TOWNS =
+      List.of(
+          "Warszawa",
+          "Kraków",
+          "Wrocław",
+          "Poznań",
+          "Gdańsk",
+          "Szczecin",
+          "Łódź",
+          "Katowice",
+          "Lublin",
+          "Gdynia",
+          "Białystok",
+          "Gliwice",
+          "Radom",
+          "Rzeszów",
+          "Tychy",
+          "Zielona Góra",
+          "Płock",
+          "Elbląg",
+          "Piotrków Trybunalski",
+          "Słupsk",
+          "Kalisz",
+          "Toruń",
+          "Koszalin",
+          "Legnica",
+          "Olsztyn",
+          "Tarnów",
+          "Siedlce",
+          "Kielce");
+
+  public static final List<String> ALLOWED_KEYWORDS =
+      List.of(
+          "headphones",
+          "wireless",
+          "bluetooth",
+          "premium",
+          "audio",
+          "sale",
+          "music",
+          "ergonomic",
+          "office",
+          "gadget",
+          "deal",
+          "discount",
+          "smart",
+          "tech",
+          "new",
+          "hot",
+          "limited",
+          "exclusive");
+
   private final CampaignRepository campaignRepository;
+
+  public void validateTownAndKeywords(String town, List<String> keywords) {
+    if (town != null && !ALLOWED_TOWNS.contains(town)) {
+      throw new IllegalArgumentException("Town '%s' is not supported".formatted(town));
+    }
+    if (keywords != null) {
+      keywords.stream()
+          .filter(kw -> !ALLOWED_KEYWORDS.contains(kw))
+          .findFirst()
+          .ifPresent(
+              kw -> {
+                throw new IllegalArgumentException("Keyword '%s' is not supported".formatted(kw));
+              });
+    }
+  }
 
   public void validateCampaignCreation(
       @NonNull EmeraldAccount account,

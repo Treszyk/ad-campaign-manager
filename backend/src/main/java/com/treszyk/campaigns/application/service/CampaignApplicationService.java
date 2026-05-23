@@ -44,6 +44,7 @@ public class CampaignApplicationService
 
     campaignDomainService.validateCampaignCreation(
         account, product, seller.getId(), cmd.campaignFund());
+    campaignDomainService.validateTownAndKeywords(cmd.town(), cmd.keywords());
 
     campaignDomainService.deductFunds(account, cmd.campaignFund());
     emeraldAccountRepository.save(account);
@@ -71,6 +72,7 @@ public class CampaignApplicationService
     Campaign campaign = getCampaignOrThrow(cmd.id());
     EmeraldAccount account = getAccountOrThrow(campaign.getEmeraldAccountId());
 
+    campaignDomainService.validateTownAndKeywords(cmd.town(), cmd.keywords());
     campaignDomainService.adjustFunds(account, campaign.getCampaignFund(), cmd.campaignFund());
     emeraldAccountRepository.save(account);
 

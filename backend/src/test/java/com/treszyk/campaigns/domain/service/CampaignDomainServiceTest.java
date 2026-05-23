@@ -9,6 +9,7 @@ import com.treszyk.campaigns.domain.model.EmeraldAccount;
 import com.treszyk.campaigns.domain.model.Product;
 import com.treszyk.campaigns.domain.repository.CampaignRepository;
 import java.math.BigDecimal;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -154,5 +155,41 @@ class CampaignDomainServiceTest {
     assertThrows(
         InsufficientFundsException.class,
         () -> campaignDomainService.adjustFunds(account, oldFund, newFund));
+  }
+
+  // validateTownAndKeywords Tests
+
+  @Test
+  void validateTownAndKeywords_Succeeds_WhenTownAndKeywordsAreSupported() {
+    assertDoesNotThrow(
+        () ->
+            campaignDomainService.validateTownAndKeywords(
+                "Warszawa", List.of("headphones", "wireless")));
+  }
+
+  @Test
+  void validateTownAndKeywords_Succeeds_WhenTownOrKeywordsAreNull() {
+    assertDoesNotThrow(() -> campaignDomainService.validateTownAndKeywords(null, null));
+  }
+
+  @Test
+  void validateTownAndKeywords_ThrowsIllegalArgumentException_WhenTownIsNotSupported() {
+    IllegalArgumentException exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                campaignDomainService.validateTownAndKeywords("Sosnowiec", List.of("headphones")));
+    assertTrue(exception.getMessage().contains("Town 'Sosnowiec' is not supported"));
+  }
+
+  @Test
+  void validateTownAndKeywords_ThrowsIllegalArgumentException_WhenKeywordIsNotSupported() {
+    IllegalArgumentException exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                campaignDomainService.validateTownAndKeywords(
+                    "Warszawa", List.of("headphones", "illegal")));
+    assertTrue(exception.getMessage().contains("Keyword 'illegal' is not supported"));
   }
 }
