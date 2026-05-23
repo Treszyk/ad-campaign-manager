@@ -19,9 +19,9 @@ public class EmeraldAccount {
   // one seller is able to hold many EmeraldAccounts
   @NonNull private Long sellerId;
 
-  public void setBalance(BigDecimal balance) {
-    if (balance == null || balance.compareTo(BigDecimal.ZERO) < 0) {
-      throw new IllegalArgumentException("Account balance cannot be negative or null");
+  public void setBalance(@NonNull BigDecimal balance) {
+    if (balance.compareTo(BigDecimal.ZERO) < 0) {
+      throw new IllegalArgumentException("Account balance cannot be negative");
     }
     this.balance = balance;
   }

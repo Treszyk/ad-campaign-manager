@@ -31,22 +31,22 @@ public class Campaign {
   @NonNull private Long productId;
   @NonNull private Long emeraldAccountId;
 
-  public void setBidAmount(BigDecimal bidAmount) {
-    if (bidAmount == null || bidAmount.compareTo(BigDecimal.ONE) < 0)
-      throw new IllegalArgumentException("BidAmount must be higher or equal to 1.0 and not null");
+  public void setBidAmount(@NonNull BigDecimal bidAmount) {
+    if (bidAmount.compareTo(BigDecimal.ONE) < 0)
+      throw new IllegalArgumentException("BidAmount must be higher or equal to 1.0");
     this.bidAmount = bidAmount;
   }
 
-  public void setCampaignFund(BigDecimal campaignFund) {
-    if (campaignFund == null || campaignFund.compareTo(BigDecimal.ZERO) <= 0) {
-      throw new IllegalArgumentException("Campaign cannot be negative or null");
+  public void setCampaignFund(@NonNull BigDecimal campaignFund) {
+    if (campaignFund.compareTo(BigDecimal.ZERO) <= 0) {
+      throw new IllegalArgumentException("Campaign fund must be positive");
     }
     this.campaignFund = campaignFund;
   }
 
-  public void setRadiusKm(Double radiusKm) {
-    if (radiusKm == null || radiusKm < 0) {
-      throw new IllegalArgumentException("Radius cannot be negative or null");
+  public void setRadiusKm(@NonNull Double radiusKm) {
+    if (radiusKm < 0) {
+      throw new IllegalArgumentException("Radius cannot be negative");
     }
     this.radiusKm = radiusKm;
   }
