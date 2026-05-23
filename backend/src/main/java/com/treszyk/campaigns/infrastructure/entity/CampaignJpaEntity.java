@@ -34,7 +34,7 @@ public class CampaignJpaEntity {
 
   private String name;
 
-  @ElementCollection(fetch = FetchType.EAGER)
+  @ElementCollection(fetch = FetchType.LAZY)
   @CollectionTable(name = "campaign_keywords", joinColumns = @JoinColumn(name = "campaign_id"))
   private List<String> keywords = new ArrayList<>();
 
