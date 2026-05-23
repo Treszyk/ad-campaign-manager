@@ -105,6 +105,12 @@ public class CampaignApplicationService
   }
 
   @Override
+  public List<Campaign> getCampaignsBySellerId(Long sellerId) {
+    getSellerOrThrow(sellerId);
+    return campaignRepository.findBySellerId(sellerId);
+  }
+
+  @Override
   public Campaign getCampaignById(Long id) {
     return getCampaignOrThrow(id);
   }

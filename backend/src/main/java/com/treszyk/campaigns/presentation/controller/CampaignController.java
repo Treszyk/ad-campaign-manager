@@ -69,6 +69,16 @@ public class CampaignController {
     return ResponseEntity.ok(campaigns);
   }
 
+  @GetMapping("/seller/{sellerId}")
+  public ResponseEntity<List<CampaignResponse>> getCampaignsBySellerId(
+      @PathVariable Long sellerId) {
+    List<CampaignResponse> campaigns =
+        getCampaignsUseCase.getCampaignsBySellerId(sellerId).stream()
+            .map(this::mapToResponse)
+            .toList();
+    return ResponseEntity.ok(campaigns);
+  }
+
   @GetMapping("/{id}")
   public ResponseEntity<CampaignResponse> getCampaignById(@PathVariable Long id) {
     Campaign campaign = getCampaignsUseCase.getCampaignById(id);
