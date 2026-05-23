@@ -3,8 +3,10 @@ package com.treszyk.campaigns.application.service;
 import com.treszyk.campaigns.application.usecase.GetSellersUseCase;
 import com.treszyk.campaigns.domain.exception.ResourceNotFoundException;
 import com.treszyk.campaigns.domain.model.EmeraldAccount;
+import com.treszyk.campaigns.domain.model.Product;
 import com.treszyk.campaigns.domain.model.Seller;
 import com.treszyk.campaigns.domain.repository.EmeraldAccountRepository;
+import com.treszyk.campaigns.domain.repository.ProductRepository;
 import com.treszyk.campaigns.domain.repository.SellerRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ public class SellerApplicationService implements GetSellersUseCase {
 
   private final SellerRepository sellerRepository;
   private final EmeraldAccountRepository emeraldAccountRepository;
+  private final ProductRepository productRepository;
 
   @Override
   public List<Seller> getAllSellers() {
@@ -42,5 +45,13 @@ public class SellerApplicationService implements GetSellersUseCase {
       throw new ResourceNotFoundException("Seller with ID %d not found".formatted(sellerId));
     }
     return emeraldAccountRepository.findBySellerId(sellerId);
+  }
+
+  @Override
+  public List<Product> getProductsBySellerId(Long sellerId) {
+    if (sellerRepository.findById(sellerId).isEmpty()) {
+      throw new ResourceNotFoundException("Seller with ID %d not found".formatted(sellerId));
+    }
+    return productRepository.findBySellerId(sellerId);
   }
 }

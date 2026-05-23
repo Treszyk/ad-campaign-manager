@@ -1,7 +1,6 @@
 package com.treszyk.campaigns.application.usecase;
 
 import com.treszyk.campaigns.domain.model.AdTheme;
-import com.treszyk.campaigns.domain.model.Product;
 import java.util.List;
 
 public interface GetMetadataUseCase {
@@ -10,6 +9,4 @@ public interface GetMetadataUseCase {
   List<String> getKeywords();
 
   List<String> getTowns();
-
-  List<Product> getProductsBySellerId(Long sellerId);
 }

@@ -5,8 +5,10 @@ import static org.mockito.Mockito.when;
 
 import com.treszyk.campaigns.domain.exception.ResourceNotFoundException;
 import com.treszyk.campaigns.domain.model.EmeraldAccount;
+import com.treszyk.campaigns.domain.model.Product;
 import com.treszyk.campaigns.domain.model.Seller;
 import com.treszyk.campaigns.domain.repository.EmeraldAccountRepository;
+import com.treszyk.campaigns.domain.repository.ProductRepository;
 import com.treszyk.campaigns.domain.repository.SellerRepository;
 import java.math.BigDecimal;
 import java.util.List;
@@ -22,6 +24,7 @@ class SellerApplicationServiceTest {
 
   @Mock private SellerRepository sellerRepository;
   @Mock private EmeraldAccountRepository emeraldAccountRepository;
+  @Mock private ProductRepository productRepository;
 
   @InjectMocks private SellerApplicationService service;
 
@@ -78,6 +81,31 @@ class SellerApplicationServiceTest {
 
     ResourceNotFoundException exception =
         assertThrows(ResourceNotFoundException.class, () -> service.getAccountsBySellerId(1L));
+    assertTrue(exception.getMessage().contains("Seller with ID 1 not found"));
+  }
+
+  @Test
+  void getProductsBySellerId_ReturnsProducts_WhenSellerExists() {
+    List<Product> mockProducts =
+        List.of(
+            new Product(1L, "Laptop", "High-end specs", 1L),
+            new Product(2L, "Mouse", "Ergonomic design", 1L));
+
+    when(sellerRepository.findById(1L)).thenReturn(Optional.of(new Seller(1L, "Alice", "Smith")));
+    when(productRepository.findBySellerId(1L)).thenReturn(mockProducts);
+
+    List<Product> result = service.getProductsBySellerId(1L);
+
+    assertEquals(2, result.size());
+    assertEquals(mockProducts, result);
+  }
+
+  @Test
+  void getProductsBySellerId_ThrowsResourceNotFoundException_WhenSellerDoesNotExist() {
+    when(sellerRepository.findById(1L)).thenReturn(Optional.empty());
+
+    ResourceNotFoundException exception =
+        assertThrows(ResourceNotFoundException.class, () -> service.getProductsBySellerId(1L));
     assertTrue(exception.getMessage().contains("Seller with ID 1 not found"));
   }
 }
