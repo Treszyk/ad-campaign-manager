@@ -1,0 +1,19 @@
+<div class="preview-card" [class]="'theme-' + adTheme().toLowerCase().replace('_', '-')">
+  <div class="card-header">
+    <span class="card-brand">◆ EMERALD AD NETWORK</span>
+  </div>
+
+  <div class="card-body">
+    @if (campaignName()) {
+      <span class="card-catchphrase">{{ campaignName() }}</span>
+    }
+    <h3 class="card-product">{{ productName() }}</h3>
+    <p class="card-desc">{{ productDescription() }}</p>
+  </div>
+
+  <div class="card-footer">
+    @if (town()) {
+      <div class="card-location">📍 {{ town() }} (±{{ radiusKm() }} km)</div>
+    }
+  </div>
+</div>

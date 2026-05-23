@@ -1,0 +1,362 @@
+<div
+  class="modal-backdrop"
+  role="dialog"
+  tabindex="-1"
+  (mousedown)="onBackdropMouseDown($event)"
+  (click)="onBackdropClick($event)"
+  (keydown.escape)="modalClose.emit()"
+>
+  <div class="modal-container" [class.editor-active]="isEditor()">
+    <div class="modal-header">
+      <div class="modal-header-title">
+        <h2>{{ campaign() ? 'Manage Campaign' : 'Launch Campaign' }}</h2>
+        <span class="modal-subtitle">For product: {{ product().name }}</span>
+      </div>
+      <button class="btn-close" (click)="modalClose.emit()">&times;</button>
+    </div>
+
+    <div class="mobile-tab-switcher">
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeMobileTab() === 'form'"
+        (click)="activeMobileTab.set('form')"
+      >
+        {{ isEditor() ? 'Edit Settings' : 'Campaign Details' }}
+      </button>
+      <button
+        type="button"
+        class="tab-btn"
+        [class.active]="activeMobileTab() === 'preview'"
+        (click)="activeMobileTab.set('preview')"
+      >
+        Live Preview
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-pane" [class.mobile-hidden]="activeMobileTab() !== 'form'">
+        @if (isEditor()) {
+          <form
+            id="campaign-form"
+            [formGroup]="campaignForm"
+            (ngSubmit)="onSave()"
+            class="reactive-form"
+          >
+            <div class="form-group">
+              <label for="campaign-name">Campaign Name</label>
+              <input
+                id="campaign-name"
+                type="text"
+                formControlName="name"
+                placeholder="e.g. Summer Promo 2026"
+                class="form-control"
+              />
+              @if (campaignForm.get('name')?.touched && campaignForm.get('name')?.invalid) {
+                <span class="error-msg">Campaign name is required.</span>
+              }
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="funding-account">Fund from Emerald Account</label>
+                <select
+                  id="funding-account"
+                  formControlName="emeraldAccountId"
+                  class="form-control-select"
+                >
+                  @for (acc of sellerService.accounts(); track acc.id) {
+                    <option [value]="acc.id">
+                      {{ acc.accountName }} (Balance: {{ acc.balance | number: '1.2-2' }} EMR)
+                    </option>
+                  }
+                </select>
+                @if (
+                  campaignForm.get('emeraldAccountId')?.touched &&
+                  campaignForm.get('emeraldAccountId')?.invalid
+                ) {
+                  <span class="error-msg">Emerald funding account is required.</span>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="ad-theme">Ad Display Theme</label>
+                <select id="ad-theme" formControlName="adTheme" class="form-control-select">
+                  @for (theme of metadataService.themes(); track theme) {
+                    <option [value]="theme">{{ theme.replace('PASTEL_', '') }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="bid-amount">Bid Amount (Minimum 1.0 EMR)</label>
+                <input
+                  id="bid-amount"
+                  type="number"
+                  formControlName="bidAmount"
+                  min="0.0"
+                  step="0.10"
+                  class="form-control"
+                />
+                @if (
+                  campaignForm.get('bidAmount')?.touched && campaignForm.get('bidAmount')?.invalid
+                ) {
+                  <span class="error-msg">Bid must be at least 1.0 EMR.</span>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="campaign-fund">Campaign Budget Fund (EMR)</label>
+                <input
+                  id="campaign-fund"
+                  type="number"
+                  formControlName="campaignFund"
+                  min="0.0"
+                  step="1.00"
+                  class="form-control"
+                />
+                @if (
+                  campaignForm.get('campaignFund')?.touched &&
+                  campaignForm.get('campaignFund')?.invalid
+                ) {
+                  <span class="error-msg">Budget must be a positive amount.</span>
+                }
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="town-select">Target Town</label>
+                <select id="town-select" formControlName="town" class="form-control-select">
+                  <option value="" disabled>Select target town...</option>
+                  @for (t of metadataService.towns(); track t) {
+                    <option [value]="t">{{ t }}</option>
+                  }
+                </select>
+                @if (campaignForm.get('town')?.touched && campaignForm.get('town')?.invalid) {
+                  <span class="error-msg">Target town is required.</span>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="radius-input">Target Radius (km)</label>
+                <input
+                  id="radius-input"
+                  type="number"
+                  formControlName="radiusKm"
+                  min="0"
+                  class="form-control"
+                />
+                @if (
+                  campaignForm.get('radiusKm')?.touched && campaignForm.get('radiusKm')?.invalid
+                ) {
+                  <span class="error-msg">Target radius is required.</span>
+                }
+              </div>
+            </div>
+
+            <div class="form-group keywords-form-group">
+              <label for="keyword-search">Campaign Keywords (Min 1 keyword)</label>
+              <div class="keywords-search-box">
+                <input
+                  id="keyword-search"
+                  type="text"
+                  [value]="keywordSearchQuery()"
+                  (input)="keywordSearchQuery.set($any($event.target).value)"
+                  (focus)="showKeywordsDropdown.set(true)"
+                  placeholder="Type to search and select allowed keywords..."
+                  class="form-control"
+                />
+                @if (showKeywordsDropdown() && keywordSearchQuery().trim().length > 0) {
+                  <div class="keywords-dropdown">
+                    @for (kw of getFilteredKeywords(); track kw) {
+                      <div
+                        class="dropdown-item"
+                        role="button"
+                        tabindex="0"
+                        (click)="addKeyword(kw)"
+                        (keydown.enter)="addKeyword(kw)"
+                      >
+                        {{ kw }}
+                      </div>
+                    } @empty {
+                      <div class="dropdown-empty">No matching keywords found</div>
+                    }
+                  </div>
+                }
+              </div>
+
+              <div class="selected-keywords-chips">
+                @for (kw of selectedKeywords(); track kw) {
+                  <span class="keyword-chip">
+                    #{{ kw }}
+                    <span
+                      class="chip-remove"
+                      role="button"
+                      tabindex="0"
+                      (click)="removeKeyword(kw)"
+                      (keydown.enter)="removeKeyword(kw)"
+                      >&times;</span
+                    >
+                  </span>
+                }
+              </div>
+              @if (selectedKeywords().length === 0 && campaignForm.touched) {
+                <span class="error-msg">At least one targeted keyword is required.</span>
+              }
+            </div>
+
+            <div class="form-group status-toggle-group">
+              <label class="toggle-switch">
+                <input type="checkbox" formControlName="status" />
+                <span class="slider"></span>
+              </label>
+              <span class="toggle-label">
+                Campaign is {{ campaignForm.get('status')?.value ? 'Active' : 'Paused' }}
+              </span>
+            </div>
+          </form>
+        } @else {
+          <div class="details-pane">
+            <div class="details-grid">
+              <div class="details-item">
+                <span class="details-label">Campaign Name</span>
+                <span class="details-value name-value">{{ campaign()!.name }}</span>
+              </div>
+
+              <div class="details-item">
+                <span class="details-label">Funded From</span>
+                <span class="details-value">
+                  {{ sellerService.accounts().find(a => a.id === campaign()!.emeraldAccountId)?.accountName ?? 'Account #' + campaign()!.emeraldAccountId }}
+                </span>
+              </div>
+
+              <div class="details-row">
+                <div class="details-item">
+                  <span class="details-label">Bid Amount</span>
+                  <span class="details-value metric-value"
+                    >◆ {{ campaign()!.bidAmount | number: '1.2-2' }}</span
+                  >
+                </div>
+
+                <div class="details-item">
+                  <span class="details-label">Campaign Fund</span>
+                  <span class="details-value metric-value"
+                    >◆ {{ campaign()!.campaignFund | number: '1.2-2' }}</span
+                  >
+                </div>
+              </div>
+
+              <div class="details-row">
+                <div class="details-item">
+                  <span class="details-label">Location Coverage</span>
+                  <span class="details-value"
+                    >{{ campaign()!.town }} ({{ campaign()!.radiusKm }} km radius)</span
+                  >
+                </div>
+
+                <div class="details-item">
+                  <span class="details-label">Campaign Status</span>
+                  <span class="status-indicator" [class.active]="campaign()!.status">
+                    {{ campaign()!.status ? 'Active' : 'Paused' }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="details-item">
+                <span class="details-label">Keywords</span>
+                <div class="details-keywords">
+                  @for (kw of campaign()!.keywords; track kw) {
+                    <span class="detail-chip">#{{ kw }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="preview-pane" [class.mobile-hidden]="activeMobileTab() !== 'preview'">
+        <div class="preview-pane-sticky">
+          <span class="preview-label">Live Ad Preview</span>
+          <app-ad-preview
+            #adPreview
+            [productName]="product().name"
+            [productDescription]="product().description"
+            [campaignName]="
+              isEditor() ? campaignForm.get('name')?.value || '' : campaign()?.name || ''
+            "
+            [adTheme]="
+              isEditor()
+                ? campaignForm.get('adTheme')?.value || metadataService.themes()[0] || 'PASTEL_MINT'
+                : campaign()!.adTheme
+            "
+            [town]="isEditor() ? campaignForm.get('town')?.value || '' : campaign()?.town || ''"
+            [radiusKm]="
+              isEditor() ? campaignForm.get('radiusKm')?.value || 0 : campaign()?.radiusKm || 0
+            "
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <div class="footer-left-actions">
+        @if (isEditor()) {
+          <button
+            type="submit"
+            form="campaign-form"
+            class="btn btn-primary"
+            [disabled]="campaignForm.invalid || selectedKeywords().length === 0"
+          >
+            Save Campaign
+          </button>
+          @if (campaign()) {
+            <button type="button" class="btn btn-secondary" (click)="toggleEditMode()">
+              Cancel
+            </button>
+          }
+        } @else {
+          @if (showDeleteConfirm()) {
+            <div class="delete-confirm-box">
+              <span class="confirm-text">Are you sure? Deleted budget will be fully refunded.</span>
+              <div class="confirm-actions">
+                <button class="btn btn-secondary btn-sm" (click)="showDeleteConfirm.set(false)">
+                  No, Keep It
+                </button>
+                <button class="btn btn-danger btn-sm" (click)="onDelete()">Yes, Delete</button>
+              </div>
+            </div>
+          } @else {
+            <button class="btn btn-primary" (click)="toggleEditMode()">Edit Campaign</button>
+            <button class="btn btn-danger" (click)="showDeleteConfirm.set(true)">Delete Ad</button>
+          }
+        }
+      </div>
+
+      @if (!showDeleteConfirm()) {
+        <div class="footer-right-actions">
+          <button type="button" class="btn-download-mockup" (click)="adPreview.downloadPng()">
+            <svg
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            <span>Download PNG Mockup</span>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</div>
