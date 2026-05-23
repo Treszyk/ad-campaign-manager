@@ -1,7 +1,6 @@
 package com.treszyk.campaigns.domain.model;
 
 import java.math.BigDecimal;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -9,7 +8,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class EmeraldAccount {
   private Long id;
@@ -18,6 +16,14 @@ public class EmeraldAccount {
 
   // one seller is able to hold many EmeraldAccounts
   @NonNull private Long sellerId;
+
+  public EmeraldAccount(
+      Long id, @NonNull String accountName, @NonNull BigDecimal balance, @NonNull Long sellerId) {
+    this.id = id;
+    this.accountName = accountName;
+    setBalance(balance);
+    this.sellerId = sellerId;
+  }
 
   public void setBalance(@NonNull BigDecimal balance) {
     if (balance.compareTo(BigDecimal.ZERO) < 0) {
