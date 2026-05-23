@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { Dashboard } from './dashboard';
 import { SellerService } from '../../services/seller.service';
 import { Seller } from '../../models/seller.model';
@@ -9,6 +11,7 @@ import { Product } from '../../models/product.model';
 describe('Dashboard', () => {
   let component: Dashboard;
   let fixture: ComponentFixture<Dashboard>;
+  let httpTesting: HttpTestingController;
   let sellerServiceMock: Partial<SellerService>;
 
   const mockSelectedSeller: Seller = {
@@ -41,12 +44,27 @@ describe('Dashboard', () => {
 
     await TestBed.configureTestingModule({
       imports: [Dashboard],
-      providers: [{ provide: SellerService, useValue: sellerServiceMock as SellerService }],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: SellerService, useValue: sellerServiceMock as SellerService },
+      ],
     }).compileComponents();
+
+    httpTesting = TestBed.inject(HttpTestingController);
 
     fixture = TestBed.createComponent(Dashboard);
     component = fixture.componentInstance;
     fixture.detectChanges();
+
+    httpTesting.match('/api/metadata/themes').forEach((req) => req.flush([]));
+    httpTesting.match('/api/metadata/keywords').forEach((req) => req.flush([]));
+    httpTesting.match('/api/metadata/towns').forEach((req) => req.flush([]));
+    httpTesting.match('/api/campaigns').forEach((req) => req.flush([]));
+  });
+
+  afterEach(() => {
+    httpTesting.verify();
   });
 
   it('should create', () => {
