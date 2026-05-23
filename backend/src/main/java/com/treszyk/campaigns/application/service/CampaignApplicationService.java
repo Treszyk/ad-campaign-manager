@@ -131,6 +131,6 @@ public class CampaignApplicationService
   private Seller getSellerOrThrow(Long id) {
     return sellerRepository
         .findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+        .orElseThrow(() -> new ResourceNotFoundException("Seller not found with ID: " + id));
   }
 }

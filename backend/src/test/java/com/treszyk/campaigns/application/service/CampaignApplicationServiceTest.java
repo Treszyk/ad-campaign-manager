@@ -1,7 +1,6 @@
 package com.treszyk.campaigns.application.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -47,11 +46,11 @@ class CampaignApplicationServiceTest {
     CreateCampaignCommand cmd =
         new CreateCampaignCommand(
             "Summer Ad",
-            List.of("summer", "sale"),
+            List.of("sale", "premium"),
             BigDecimal.valueOf(2.0),
             BigDecimal.valueOf(100.0),
             true,
-            "Warsaw",
+            "Warszawa",
             10.0,
             AdTheme.PASTEL_MINT,
             1L,
@@ -83,9 +82,9 @@ class CampaignApplicationServiceTest {
 
     Campaign result = service.createCampaign(cmd);
 
-    assertThat(result).isNotNull();
-    assertThat(result.getId()).isEqualTo(1L);
-    assertThat(result.getName()).isEqualTo("Summer Ad");
+    assertNotNull(result);
+    assertEquals(1L, result.getId());
+    assertEquals("Summer Ad", result.getName());
 
     verify(campaignDomainService)
         .validateCampaignCreation(account, product, 1L, BigDecimal.valueOf(100.0));
@@ -99,11 +98,11 @@ class CampaignApplicationServiceTest {
     CreateCampaignCommand cmd =
         new CreateCampaignCommand(
             "Summer Ad",
-            List.of("summer"),
+            List.of("sale"),
             BigDecimal.valueOf(2.0),
             BigDecimal.valueOf(100.0),
             true,
-            "Warsaw",
+            "Warszawa",
             10.0,
             AdTheme.PASTEL_MINT,
             1L,
@@ -121,8 +120,7 @@ class CampaignApplicationServiceTest {
         .when(campaignDomainService)
         .validateCampaignCreation(account, product, 1L, BigDecimal.valueOf(100.0));
 
-    assertThatThrownBy(() -> service.createCampaign(cmd))
-        .isInstanceOf(InsufficientFundsException.class);
+    assertThrows(InsufficientFundsException.class, () -> service.createCampaign(cmd));
 
     verify(campaignDomainService, never()).deductFunds(any(), any());
     verify(emeraldAccountRepository, never()).save(any());
@@ -135,11 +133,11 @@ class CampaignApplicationServiceTest {
         new UpdateCampaignCommand(
             1L,
             "Updated Ad",
-            List.of("updated"),
+            List.of("wireless"),
             BigDecimal.valueOf(3.0),
             BigDecimal.valueOf(150.0),
             true,
-            "Cracow",
+            "Kraków",
             15.0,
             AdTheme.PASTEL_BLUE);
 
@@ -147,11 +145,11 @@ class CampaignApplicationServiceTest {
         new Campaign(
             1L,
             "Summer Ad",
-            List.of("summer"),
+            List.of("sale"),
             BigDecimal.valueOf(2.0),
             BigDecimal.valueOf(100.0),
             true,
-            "Warsaw",
+            "Warszawa",
             10.0,
             AdTheme.PASTEL_MINT,
             1L,
@@ -165,9 +163,9 @@ class CampaignApplicationServiceTest {
 
     Campaign result = service.updateCampaign(cmd);
 
-    assertThat(result).isNotNull();
-    assertThat(result.getName()).isEqualTo("Updated Ad");
-    assertThat(result.getCampaignFund()).isEqualTo(BigDecimal.valueOf(150.0));
+    assertNotNull(result);
+    assertEquals("Updated Ad", result.getName());
+    assertEquals(BigDecimal.valueOf(150.0), result.getCampaignFund());
 
     verify(campaignDomainService)
         .adjustFunds(account, BigDecimal.valueOf(100.0), BigDecimal.valueOf(150.0));
@@ -181,11 +179,11 @@ class CampaignApplicationServiceTest {
         new Campaign(
             1L,
             "Summer Ad",
-            List.of("summer"),
+            List.of("sale"),
             BigDecimal.valueOf(2.0),
             BigDecimal.valueOf(100.0),
             true,
-            "Warsaw",
+            "Warszawa",
             10.0,
             AdTheme.PASTEL_MINT,
             1L,
@@ -209,11 +207,11 @@ class CampaignApplicationServiceTest {
         new Campaign(
             1L,
             "Summer Ad",
-            List.of("summer"),
+            List.of("sale"),
             BigDecimal.valueOf(2.0),
             BigDecimal.valueOf(100.0),
             true,
-            "Warsaw",
+            "Warszawa",
             10.0,
             AdTheme.PASTEL_MINT,
             1L,
@@ -224,16 +222,16 @@ class CampaignApplicationServiceTest {
 
     Campaign result = service.getCampaignById(1L);
 
-    assertThat(result).isNotNull();
-    assertThat(result.getId()).isEqualTo(1L);
+    assertNotNull(result);
+    assertEquals(1L, result.getId());
   }
 
   @Test
   void getCampaignById_ThrowsResourceNotFoundException_WhenCampaignDoesNotExist() {
     when(campaignRepository.findById(99L)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> service.getCampaignById(99L))
-        .isInstanceOf(ResourceNotFoundException.class)
-        .hasMessageContaining("Campaign not found with ID: 99");
+    ResourceNotFoundException exception =
+        assertThrows(ResourceNotFoundException.class, () -> service.getCampaignById(99L));
+    assertTrue(exception.getMessage().contains("Campaign not found with ID: 99"));
   }
 }

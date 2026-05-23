@@ -1,7 +1,6 @@
 package com.treszyk.campaigns.application.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import com.treszyk.campaigns.domain.exception.ResourceNotFoundException;
@@ -34,7 +33,8 @@ class SellerApplicationServiceTest {
 
     List<Seller> result = service.getAllSellers();
 
-    assertThat(result).hasSize(2).isEqualTo(mockSellers);
+    assertEquals(2, result.size());
+    assertEquals(mockSellers, result);
   }
 
   @Test
@@ -44,16 +44,16 @@ class SellerApplicationServiceTest {
 
     Seller result = service.getSellerById(1L);
 
-    assertThat(result).isEqualTo(mockSeller);
+    assertEquals(mockSeller, result);
   }
 
   @Test
   void getSellerById_ThrowsResourceNotFoundException_WhenSellerDoesNotExist() {
     when(sellerRepository.findById(1L)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> service.getSellerById(1L))
-        .isInstanceOf(ResourceNotFoundException.class)
-        .hasMessageContaining("Seller with ID 1 not found");
+    ResourceNotFoundException exception =
+        assertThrows(ResourceNotFoundException.class, () -> service.getSellerById(1L));
+    assertTrue(exception.getMessage().contains("Seller with ID 1 not found"));
   }
 
   @Test
@@ -68,15 +68,16 @@ class SellerApplicationServiceTest {
 
     List<EmeraldAccount> result = service.getAccountsBySellerId(1L);
 
-    assertThat(result).hasSize(2).isEqualTo(mockAccounts);
+    assertEquals(2, result.size());
+    assertEquals(mockAccounts, result);
   }
 
   @Test
   void getAccountsBySellerId_ThrowsResourceNotFoundException_WhenSellerDoesNotExist() {
     when(sellerRepository.findById(1L)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> service.getAccountsBySellerId(1L))
-        .isInstanceOf(ResourceNotFoundException.class)
-        .hasMessageContaining("Seller with ID 1 not found");
+    ResourceNotFoundException exception =
+        assertThrows(ResourceNotFoundException.class, () -> service.getAccountsBySellerId(1L));
+    assertTrue(exception.getMessage().contains("Seller with ID 1 not found"));
   }
 }

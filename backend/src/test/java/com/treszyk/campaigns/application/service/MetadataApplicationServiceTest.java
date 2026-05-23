@@ -1,7 +1,6 @@
 package com.treszyk.campaigns.application.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import com.treszyk.campaigns.domain.exception.ResourceNotFoundException;
@@ -31,21 +30,21 @@ class MetadataApplicationServiceTest {
   void getAvailableThemes_ReturnsAllAdThemes() {
     List<AdTheme> result = service.getAvailableThemes();
 
-    assertThat(result).containsExactly(AdTheme.values());
+    assertArrayEquals(AdTheme.values(), result.toArray());
   }
 
   @Test
   void getKeywords_ReturnsAllowedKeywordsFromDomain() {
     List<String> result = service.getKeywords();
 
-    assertThat(result).isEqualTo(CampaignDomainService.ALLOWED_KEYWORDS);
+    assertEquals(CampaignDomainService.ALLOWED_KEYWORDS, result);
   }
 
   @Test
   void getTowns_ReturnsAllowedTownsFromDomain() {
     List<String> result = service.getTowns();
 
-    assertThat(result).isEqualTo(CampaignDomainService.ALLOWED_TOWNS);
+    assertEquals(CampaignDomainService.ALLOWED_TOWNS, result);
   }
 
   @Test
@@ -60,15 +59,16 @@ class MetadataApplicationServiceTest {
 
     List<Product> result = service.getProductsBySellerId(1L);
 
-    assertThat(result).hasSize(2).isEqualTo(mockProducts);
+    assertEquals(2, result.size());
+    assertEquals(mockProducts, result);
   }
 
   @Test
   void getProductsBySellerId_ThrowsResourceNotFoundException_WhenSellerDoesNotExist() {
     when(sellerRepository.findById(1L)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> service.getProductsBySellerId(1L))
-        .isInstanceOf(ResourceNotFoundException.class)
-        .hasMessageContaining("Seller with ID 1 not found");
+    ResourceNotFoundException exception =
+        assertThrows(ResourceNotFoundException.class, () -> service.getProductsBySellerId(1L));
+    assertTrue(exception.getMessage().contains("Seller with ID 1 not found"));
   }
 }
