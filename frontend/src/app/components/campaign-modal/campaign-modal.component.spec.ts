@@ -51,7 +51,7 @@ describe('CampaignModalComponent', () => {
     httpTesting.match('/api/metadata/themes').forEach((req) => req.flush(['PASTEL_MINT']));
     httpTesting.match('/api/metadata/keywords').forEach((req) => req.flush(['headphones']));
     httpTesting.match('/api/metadata/towns').forEach((req) => req.flush(['Warszawa']));
-    httpTesting.match('/api/campaigns').forEach((req) => req.flush([]));
+    httpTesting.match((r) => r.url.startsWith('/api/campaigns')).forEach((req) => req.flush([]));
 
     fixture.detectChanges();
   });

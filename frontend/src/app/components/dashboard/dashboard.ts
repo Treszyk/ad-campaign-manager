@@ -34,4 +34,11 @@ export class Dashboard {
       `Account #${accountId}`
     );
   }
+
+  openCampaign(campaign: Campaign): void {
+    const product = this.sellerService.products().find((p) => p.id === campaign.productId);
+    if (product) {
+      this.activeModalContext.set({ product, campaign });
+    }
+  }
 }

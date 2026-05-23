@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, effect } from '@angular/core';
 import { CampaignApi } from '../api/campaign.api';
 import { SellerService } from './seller.service';
 import { Campaign, CreateCampaignRequest, UpdateCampaignRequest } from '../models/campaign.model';
@@ -14,21 +14,28 @@ export class CampaignService {
 
   campaigns = this.campaignsList.asReadonly();
 
-  filteredCampaigns = computed(() => {
-    const sellerId = this.sellerService.selectedSellerId();
-    if (sellerId === null) return [];
-    return this.campaignsList().filter((c) => c.sellerId === sellerId);
-  });
-
   constructor() {
-    this.refreshCampaigns();
+    effect(() => {
+      const sellerId = this.sellerService.selectedSellerId();
+      if (sellerId !== null) {
+        this.campaignApi.getCampaignsBySellerId(sellerId).subscribe({
+          next: (list) => this.campaignsList.set(list),
+          error: (err) => console.error('Failed to load campaigns', err),
+        });
+      } else {
+        this.campaignsList.set([]);
+      }
+    });
   }
 
   refreshCampaigns(): void {
-    this.campaignApi.getCampaigns().subscribe({
-      next: (list) => this.campaignsList.set(list),
-      error: (err) => console.error('Failed to load campaigns', err),
-    });
+    const sellerId = this.sellerService.selectedSellerId();
+    if (sellerId !== null) {
+      this.campaignApi.getCampaignsBySellerId(sellerId).subscribe({
+        next: (list) => this.campaignsList.set(list),
+        error: (err) => console.error('Failed to load campaigns', err),
+      });
+    }
   }
 
   createCampaign(request: CreateCampaignRequest): void {

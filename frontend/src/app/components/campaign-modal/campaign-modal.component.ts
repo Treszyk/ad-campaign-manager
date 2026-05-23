@@ -61,10 +61,8 @@ export class CampaignModalComponent implements OnInit, OnDestroy {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-    const clickedInside = this.elementRef.nativeElement
-      .querySelector('.keywords-form-group')
-      ?.contains(event.target);
-    if (!clickedInside) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.keywords-search-box')) {
       this.showKeywordsDropdown.set(false);
     }
   }

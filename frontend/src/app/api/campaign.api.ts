@@ -14,6 +14,10 @@ export class CampaignApi {
     return this.http.get<Campaign[]>(this.baseUrl);
   }
 
+  getCampaignsBySellerId(sellerId: number): Observable<Campaign[]> {
+    return this.http.get<Campaign[]>(`${this.baseUrl}/seller/${sellerId}`);
+  }
+
   getCampaignById(id: number): Observable<Campaign> {
     return this.http.get<Campaign>(`${this.baseUrl}/${id}`);
   }

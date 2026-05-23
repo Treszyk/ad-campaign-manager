@@ -90,6 +90,53 @@
   </section>
 </div>
 
+<section class="dashboard-section campaigns-section">
+  <div class="section-header">
+    <h3>Campaigns</h3>
+    <span class="badge">{{ campaignService.campaigns().length }} campaigns</span>
+  </div>
+
+  <div class="cards-grid">
+    @for (campaign of campaignService.campaigns(); track campaign.id) {
+      <div class="campaign-card">
+        <div class="campaign-card-header">
+          <span class="product-name">{{ campaign.name }}</span>
+          @if (campaign.status) {
+            <span [class]="'status-badge theme-' + campaign.adTheme.toLowerCase().replace('_', '-')"
+              >Active</span
+            >
+          } @else {
+            <span class="status-badge theme-paused">Paused</span>
+          }
+        </div>
+        <p class="product-desc">{{ getProductName(campaign.productId) }} · {{ campaign.town }}</p>
+        <div class="campaign-funds">
+          <span class="fund-item"
+            >Fund:
+            <span [class]="'fund-value theme-' + campaign.adTheme.toLowerCase().replace('_', '-')"
+              >{{ campaign.campaignFund | number: '1.2-2' }} EMR</span
+            ></span
+          >
+          <span class="fund-item"
+            >Bid:
+            <span [class]="'fund-value theme-' + campaign.adTheme.toLowerCase().replace('_', '-')"
+              >{{ campaign.bidAmount | number: '1.2-2' }} EMR</span
+            ></span
+          >
+        </div>
+        <button
+          class="btn btn-secondary btn-sm campaign-manage-btn"
+          (click)="openCampaign(campaign)"
+        >
+          Manage
+        </button>
+      </div>
+    } @empty {
+      <div class="empty-state">No campaigns created yet.</div>
+    }
+  </div>
+</section>
+
 @if (activeModalContext(); as context) {
   <app-campaign-modal
     [product]="context.product"

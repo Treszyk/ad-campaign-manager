@@ -34,6 +34,56 @@
   }
 }
 
+.campaigns-section {
+  margin-top: 32px;
+}
+
+.campaign-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  transition: var(--transition);
+}
+
+.campaign-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.campaign-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.campaign-funds {
+  display: flex;
+  gap: 12px;
+}
+
+.fund-item {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.fund-value[class*='theme-'] {
+  font-weight: 700;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+}
+
+.campaign-manage-btn {
+  width: 100%;
+  justify-content: center;
+  margin-top: 4px;
+}
+
 .dashboard-section {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -42,7 +92,6 @@
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  height: fit-content;
   min-width: 0;
   width: 100%;
   box-sizing: border-box;
@@ -81,6 +130,8 @@
   flex-direction: column;
   gap: 12px;
   width: 100%;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .wallet-card {
@@ -167,6 +218,13 @@
   grid-template-columns: 1fr;
   gap: 16px;
   width: 100%;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.campaigns-section .cards-grid {
+  grid-template-columns: repeat(3, 1fr);
+  max-height: 320px;
 }
 
 .product-card {
@@ -234,6 +292,7 @@
   border: 1px dashed var(--border-color);
   border-radius: var(--radius-md);
   background-color: var(--bg-primary);
+  grid-column: 1 / -1;
 }
 
 @media (max-width: 768px) {
@@ -307,6 +366,9 @@
     justify-content: center;
     padding: 10px 16px;
     font-size: 0.8125rem;
+  }
+  .campaigns-section .cards-grid {
+    grid-template-columns: 1fr;
   }
 }
 

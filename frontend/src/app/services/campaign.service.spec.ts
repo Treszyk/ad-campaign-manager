@@ -44,7 +44,7 @@ describe('CampaignService', () => {
 
   beforeEach(() => {
     campaignApiMock = {
-      getCampaigns: () => of(mockCampaigns),
+      getCampaignsBySellerId: () => of(mockCampaigns),
       createCampaign: () => of(mockCampaigns[0]),
       updateCampaign: () => of(mockCampaigns[0]),
       deleteCampaign: () => of(void 0),
@@ -66,12 +66,9 @@ describe('CampaignService', () => {
     service = TestBed.inject(CampaignService);
   });
 
-  it('should load all campaigns and expose them as readonly signal', () => {
+  it('should load seller campaigns via effect', () => {
+    TestBed.tick();
     expect(service.campaigns()).toEqual(mockCampaigns);
-  });
-
-  it('should filter campaigns by active seller ID using computed signal', () => {
-    expect(service.filteredCampaigns()).toEqual([mockCampaigns[0]]);
   });
 
   it('should create campaign, refresh list, and update seller balances', () => {

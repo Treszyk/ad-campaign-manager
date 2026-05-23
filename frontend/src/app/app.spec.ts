@@ -25,7 +25,6 @@ describe('App', () => {
 
     campaignServiceMock = {
       campaigns: signal([]),
-      filteredCampaigns: signal([]),
     };
 
     metadataServiceMock = {

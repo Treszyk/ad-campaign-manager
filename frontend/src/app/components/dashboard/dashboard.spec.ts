@@ -60,7 +60,7 @@ describe('Dashboard', () => {
     httpTesting.match('/api/metadata/themes').forEach((req) => req.flush([]));
     httpTesting.match('/api/metadata/keywords').forEach((req) => req.flush([]));
     httpTesting.match('/api/metadata/towns').forEach((req) => req.flush([]));
-    httpTesting.match('/api/campaigns').forEach((req) => req.flush([]));
+    httpTesting.match((r) => r.url.startsWith('/api/campaigns')).forEach((req) => req.flush([]));
   });
 
   afterEach(() => {
@@ -81,9 +81,10 @@ describe('Dashboard', () => {
   it('should render wallets and products count in badges', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const badges = compiled.querySelectorAll('.badge');
-    expect(badges.length).toBe(2);
+    expect(badges.length).toBe(3);
     expect(badges[0].textContent).toContain('1 wallets');
     expect(badges[1].textContent).toContain('1 items');
+    expect(badges[2].textContent).toContain('0 campaigns');
   });
 
   it('should render wallet list', () => {
