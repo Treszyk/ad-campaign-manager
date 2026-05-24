@@ -63,7 +63,9 @@ public class CampaignDomainService {
           "new",
           "hot",
           "limited",
-          "exclusive");
+          "exclusive",
+          "usb-c",
+          "adapter");
 
   private final CampaignRepository campaignRepository;
 
