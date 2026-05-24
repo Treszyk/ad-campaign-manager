@@ -65,7 +65,7 @@ class CampaignWorkflowIntegrationTest {
             .findFirst()
             .orElseThrow();
 
-    assertEquals(0, new BigDecimal("8000.0").compareTo(primaryWallet.balance()));
+    assertEquals(0, new BigDecimal("7500.00").compareTo(primaryWallet.balance()));
 
     MvcResult productsResult =
         mockMvc
@@ -79,7 +79,10 @@ class CampaignWorkflowIntegrationTest {
             new TypeReference<List<ProductResponse>>() {});
 
     assertFalse(products.isEmpty());
-    ProductResponse headphones = products.get(0);
+    ProductResponse chair = products.stream()
+        .filter(p -> "Ergonomic Office Chair".equals(p.name()))
+        .findFirst()
+        .orElseThrow();
 
     CreateCampaignRequest createReq =
         new CreateCampaignRequest(
@@ -92,7 +95,7 @@ class CampaignWorkflowIntegrationTest {
             15.0,
             AdTheme.PASTEL_MINT,
             alice.id(),
-            headphones.id(),
+            chair.id(),
             primaryWallet.id());
 
     MvcResult createResult =
@@ -134,7 +137,7 @@ class CampaignWorkflowIntegrationTest {
             .findFirst()
             .orElseThrow();
 
-    assertEquals(0, new BigDecimal("5000.0").compareTo(primaryWalletPostCreate.balance()));
+    assertEquals(0, new BigDecimal("4500.00").compareTo(primaryWalletPostCreate.balance()));
 
     MvcResult getResult =
         mockMvc
@@ -194,7 +197,7 @@ class CampaignWorkflowIntegrationTest {
             .findFirst()
             .orElseThrow();
 
-    assertEquals(0, new BigDecimal("6000.0").compareTo(primaryWalletPostUpdate.balance()));
+    assertEquals(0, new BigDecimal("5500.00").compareTo(primaryWalletPostUpdate.balance()));
 
     mockMvc
         .perform(delete("/api/campaigns/" + createdCampaign.id()))
@@ -227,7 +230,7 @@ class CampaignWorkflowIntegrationTest {
             10.0,
             AdTheme.PASTEL_MINT,
             1L,
-            1L,
+            2L,
             1L);
 
     MvcResult townResult =
@@ -257,7 +260,7 @@ class CampaignWorkflowIntegrationTest {
           "radiusKm": 10.0,
           "adTheme": "LIGHT",
           "sellerId": 1,
-          "productId": 1,
+          "productId": 2,
           "emeraldAccountId": 1
         }
         """;
@@ -295,5 +298,51 @@ class CampaignWorkflowIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$[0]").value("Warszawa"));
+  }
+
+  @Test
+  void getCampaignsBySellerId_ReturnsOnlySellerScopedCampaigns() throws Exception {
+    MvcResult sellersResult =
+        mockMvc.perform(get("/api/sellers")).andExpect(status().isOk()).andReturn();
+
+    List<SellerResponse> sellers =
+        objectMapper.readValue(
+            sellersResult.getResponse().getContentAsString(),
+            new TypeReference<List<SellerResponse>>() {});
+
+    SellerResponse alice =
+        sellers.stream().filter(s -> "Alice".equals(s.firstName())).findFirst().orElseThrow();
+    SellerResponse bob =
+        sellers.stream().filter(s -> "Bob".equals(s.firstName())).findFirst().orElseThrow();
+
+    MvcResult aliceCampaignsResult =
+        mockMvc
+            .perform(get("/api/campaigns/seller/" + alice.id()))
+            .andExpect(status().isOk())
+            .andReturn();
+
+    List<CampaignResponse> aliceCampaigns =
+        objectMapper.readValue(
+            aliceCampaignsResult.getResponse().getContentAsString(),
+            new TypeReference<List<CampaignResponse>>() {});
+
+    assertEquals(1, aliceCampaigns.size());
+    assertEquals("Premium Sound Launch", aliceCampaigns.get(0).name());
+    assertEquals(alice.id(), aliceCampaigns.get(0).sellerId());
+
+    MvcResult bobCampaignsResult =
+        mockMvc
+            .perform(get("/api/campaigns/seller/" + bob.id()))
+            .andExpect(status().isOk())
+            .andReturn();
+
+    List<CampaignResponse> bobCampaigns =
+        objectMapper.readValue(
+            bobCampaignsResult.getResponse().getContentAsString(),
+            new TypeReference<List<CampaignResponse>>() {});
+
+    assertEquals(1, bobCampaigns.size());
+    assertEquals("Sleek Hub Promotion", bobCampaigns.get(0).name());
+    assertEquals(bob.id(), bobCampaigns.get(0).sellerId());
   }
 }
