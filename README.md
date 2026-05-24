@@ -4,44 +4,69 @@ A full-stack application for managing local product advertising campaigns. The s
 
 ## Setup & Launch Instructions
 
-### Prerequisites
+### Option A: Run with Docker Compose (Recommended - Quickest)
+
+You can launch the entire full-stack application (both backend and frontend) inside isolated containers with a single command:
+
+1.  **Create your local environment file** in the project root directory:
+    - **Linux / macOS (Bash / Zsh)**:
+      ```bash
+      cp .env.example .env
+      ```
+    - **Windows (Command Prompt / PowerShell)**:
+      ```cmd
+      copy .env.example .env
+      ```
+2.  **Launch the stack**:
+    ```bash
+    docker compose up --build
+    ```
+
+- The Angular frontend launches on **`http://localhost:4200`**.
+- The Spring Boot REST API launches on **`http://localhost:8080`**.
+
+### Option B: Run Locally (Standalone Process Execution)
+
+If you prefer to run the components individually on your host machine:
+
+#### Prerequisites
 
 - Java Development Kit (JDK) 25
 - Node.js (v18+) and npm
-_(Note: Maven is not required to be installed globally; the project is fully bundled with the Maven Wrapper.)_
+  _(Note: Maven is not required to be installed globally; the project is fully bundled with the Maven Wrapper.)_
 
-### 1. Launch the Backend
+#### 1. Launch the Backend
 
-First, copy the environment template in the project root directory:
+First, copy the environment template in the project root directory (if not already done):
 
-*   **Linux / macOS (Bash / Zsh)**:
-    ```bash
-    cp .env.example .env
-    ```
-*   **Windows (Command Prompt / PowerShell)**:
-    ```cmd
-    copy .env.example .env
-    ```
+- **Linux / macOS (Bash / Zsh)**:
+  ```bash
+  cp .env.example .env
+  ```
+- **Windows (Command Prompt / PowerShell)**:
+  ```cmd
+  copy .env.example .env
+  ```
 
 Then, navigate to the `/backend` directory and launch the server:
 
-*   **Linux / macOS (Bash / Zsh)**:
-    ```bash
-    cd backend
-    ./mvnw clean spring-boot:run
-    ```
-*   **Windows (Command Prompt / PowerShell)**:
-    ```cmd
-    cd backend
-    mvnw.cmd clean spring-boot:run
-    ```
+- **Linux / macOS (Bash / Zsh)**:
+  ```bash
+  cd backend
+  ./mvnw clean spring-boot:run
+  ```
+- **Windows (Command Prompt / PowerShell)**:
+  ```cmd
+  cd backend
+  mvnw.cmd clean spring-boot:run
+  ```
 
 _(Note: The application dynamically loads local environment variables from the `.env` file at startup on all platforms.)_
 
 - The Spring REST API starts on `http://localhost:8080`
 - Initial database entities for Alice and Bob are automatically seeded on startup.
 
-### 2. Launch the Frontend
+#### 2. Launch the Frontend
 
 Navigate to the `/frontend` directory and execute:
 
@@ -51,8 +76,6 @@ npm start
 ```
 
 - The application launches on `http://localhost:4200` with hot-reloading active.
-
----
 
 ## Technical Stack
 
@@ -70,8 +93,6 @@ npm start
 - **Styling**: Vanilla CSS (CSS variables, flex and grid layouts)
 - **Client Libraries**: html2canvas 1.4.1 (for ad preview image captures)
 - **Client Testing**: Vitest 4.0.8
-
----
 
 ## Architectural Decisions
 
@@ -106,14 +127,10 @@ Campaign fund changes are directly linked to the seller's wallet balance:
 
 - User login sessions, credential management, seller configuration management, and product catalog inventory CRUD workflows are consciously omitted to focus strictly on core campaign management without inflating the project scope.
 
----
-
 ## Key Assumptions
 
 - **Internal ERP/CRM System**: It is assumed that the application functions as an internal business tool (such as an ERP or CRM panel) rather than a public-facing multi-tenant SaaS platform. Consequently, the API is configured to return descriptive, exact entity-level validation and lookup errors to optimize debugging and administrative workflow speed, bypassing generic 404 or 403 responses that would otherwise be required to prevent resource and user enumeration vulnerabilities in public-facing multi-tenant architectures.
 - **Development-Only Database Configuration**: The datasource credentials inside `application.properties` are hardcoded to standard H2 dev defaults (such as a blank password for user `sa`) and run completely in-memory. This is a conscious choice to facilitate immediate local execution and setup. In a production environment, external secrets are managed through environment variables (e.g., `${DB_PASSWORD}`) and activated via isolated Spring Profiles.
-
----
 
 ## REST API Endpoints
 
