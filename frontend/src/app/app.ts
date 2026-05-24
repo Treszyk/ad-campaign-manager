@@ -5,10 +5,11 @@ import { CampaignService } from './services/campaign.service';
 import { MetadataService } from './services/metadata.service';
 import { ProfileSwitcher } from './components/profile-switcher/profile-switcher';
 import { Dashboard } from './components/dashboard/dashboard';
+import { ToastModal } from './components/toast-modal/toast-modal';
 
 @Component({
   selector: 'app-root',
-  imports: [ProfileSwitcher, Dashboard, DecimalPipe],
+  imports: [ProfileSwitcher, Dashboard, DecimalPipe, ToastModal],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

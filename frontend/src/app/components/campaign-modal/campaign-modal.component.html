@@ -302,7 +302,7 @@
       </div>
     </div>
 
-    <div class="modal-footer">
+    <div class="modal-footer" [class.delete-mode]="showDeleteConfirm()">
       <div class="footer-left-actions">
         @if (isEditor()) {
           <button
