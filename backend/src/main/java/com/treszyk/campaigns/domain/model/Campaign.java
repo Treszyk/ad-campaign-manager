@@ -43,7 +43,7 @@ public class Campaign {
       @NonNull Long productId,
       @NonNull Long emeraldAccountId) {
     this.id = id;
-    this.name = name;
+    setName(name);
     this.keywords = keywords;
     setBidAmount(bidAmount);
     setCampaignFund(campaignFund);
@@ -54,6 +54,14 @@ public class Campaign {
     this.sellerId = sellerId;
     this.productId = productId;
     this.emeraldAccountId = emeraldAccountId;
+  }
+
+  public void setName(@NonNull String name) {
+    if (name.trim().isEmpty()) {
+      throw new IllegalArgumentException(
+          "Campaign name cannot be empty or contain only whitespace");
+    }
+    this.name = name;
   }
 
   public void setBidAmount(@NonNull BigDecimal bidAmount) {
