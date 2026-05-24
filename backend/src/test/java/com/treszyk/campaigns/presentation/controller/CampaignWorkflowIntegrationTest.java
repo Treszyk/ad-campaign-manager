@@ -79,10 +79,11 @@ class CampaignWorkflowIntegrationTest {
             new TypeReference<List<ProductResponse>>() {});
 
     assertFalse(products.isEmpty());
-    ProductResponse chair = products.stream()
-        .filter(p -> "Ergonomic Office Chair".equals(p.name()))
-        .findFirst()
-        .orElseThrow();
+    ProductResponse chair =
+        products.stream()
+            .filter(p -> "Ergonomic Office Chair".equals(p.name()))
+            .findFirst()
+            .orElseThrow();
 
     CreateCampaignRequest createReq =
         new CreateCampaignRequest(
